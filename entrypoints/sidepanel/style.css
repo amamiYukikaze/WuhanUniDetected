@@ -1,0 +1,7 @@
+html, body, #root {
+  height: 100%;
+}
+
+.wrap {
+  min-height: 100%;
+}

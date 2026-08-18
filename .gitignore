@@ -1,0 +1,10 @@
+.output
+.wxt
+node_modules
+*.local
+.env
+.env.*
+.DS_Store
+*.pem
+*.key
+credentials.json

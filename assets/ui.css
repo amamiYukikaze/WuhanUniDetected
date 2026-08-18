@@ -1,0 +1,173 @@
+:root {
+  color-scheme: light;
+  --bg: #f7f4f2;
+  --card: #fff;
+  --ink: #1f1715;
+  --muted: #6b5e5a;
+  --line: #eadfdb;
+  --accent: #8b1e2d;
+  --accent-soft: #f8e8ea;
+  --ok: #b42318;
+  --warn: #ca8a04;
+  --clear: #15803d;
+  --idle: #6b7280;
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+button, input, select, textarea {
+  font: inherit;
+}
+
+.wrap {
+  padding: 16px;
+}
+
+h1 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.sub {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.field label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+input, select, textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #fff;
+}
+
+.btn {
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.btn.secondary {
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.banner {
+  background: var(--accent-soft);
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+.banner.warn {
+  background: #fff4e5;
+  color: #9a3412;
+}
+
+.progress {
+  margin-top: 8px;
+  height: 6px;
+  background: var(--line);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.tag.paid {
+  background: #9a3412;
+  margin-left: 6px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+  color: #fff;
+  background: var(--idle);
+}
+
+.tag.confirmed { background: var(--ok); }
+.tag.possible { background: var(--warn); }
+.tag.clear { background: var(--clear); }
+.tag.checking { background: var(--idle); }
+
+.meta {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 6px 0;
+}
+
+.quotes {
+  margin: 8px 0 0;
+  padding-left: 16px;
+  font-size: 12px;
+}
+
+.quotes a { color: var(--accent); }
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.error { color: var(--ok); font-size: 12px; }
