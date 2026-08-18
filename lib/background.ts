@@ -1,5 +1,6 @@
 import { makePerson } from './hosts';
 import type { BroadcastMessage, ExtensionMessage } from './messages';
+import { isWebPageSender } from './sender';
 import { applyLoadedSettings, isConfigured, loadSettings, saveSettings } from './settings';
 import type { CheckResult, ExtractedPerson, PageState, PersonRole, ScanProgress, SearchUsage } from './types';
 import { isLikelyPersonName, normalizeName, splitNameList } from './normalize';
@@ -261,7 +262,7 @@ export function initBackground() {
   browser.runtime.onMessage.addListener(
     (message: ExtensionMessage | BroadcastMessage, sender, sendResponse) => {
       const tabId = sender.tab?.id;
-      void handleMessage(message, tabId, Boolean(sender.tab))
+      void handleMessage(message, tabId, isWebPageSender(sender))
         .then(sendResponse)
         .catch((error: unknown) => {
           sendResponse({
@@ -277,7 +278,7 @@ export function initBackground() {
 async function handleMessage(
   message: ExtensionMessage | BroadcastMessage,
   senderTabId: number | undefined,
-  fromContent: boolean,
+  fromWebPage: boolean,
 ) {
   if (!('type' in message)) return { ok: false, error: '无效消息' };
 
@@ -287,17 +288,17 @@ async function handleMessage(
 
   switch (message.type) {
     case 'GET_SETTINGS': {
-      if (fromContent) return { ok: false, error: '不允许从网页脚本读取设置' };
+      if (fromWebPage) return { ok: false, error: '不允许从网页脚本读取设置' };
       return { ok: true, settings: await loadSettings() };
     }
     case 'SAVE_SETTINGS': {
-      if (fromContent) return { ok: false, error: '不允许从网页脚本修改设置' };
+      if (fromWebPage) return { ok: false, error: '不允许从网页脚本修改设置' };
       await saveSettings(applyLoadedSettings(message.settings));
       await invalidateUsageCache();
       return { ok: true };
     }
     case 'GET_USAGE': {
-      if (fromContent) return { ok: false, error: '不允许从网页脚本读取用量' };
+      if (fromWebPage) return { ok: false, error: '不允许从网页脚本读取用量' };
       const settings = await loadSettings();
       const usage = await getSearchUsage(settings, Boolean(message.force));
       return { ok: true, usage };

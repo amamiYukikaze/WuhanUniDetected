@@ -33,8 +33,8 @@ export function applyLoadedSettings(
     usageWarnPercent: clampWarnPercent(raw?.usageWarnPercent ?? DEFAULT_SETTINGS.usageWarnPercent),
     autoCheck: false,
   };
-  merged.deepseekApiKey = typeof merged.deepseekApiKey === 'string' ? merged.deepseekApiKey : '';
-  merged.searchApiKey = typeof merged.searchApiKey === 'string' ? merged.searchApiKey : '';
+  merged.deepseekApiKey = typeof merged.deepseekApiKey === 'string' ? merged.deepseekApiKey.trim() : '';
+  merged.searchApiKey = typeof merged.searchApiKey === 'string' ? merged.searchApiKey.trim() : '';
   merged.deepseekModel =
     typeof merged.deepseekModel === 'string' && merged.deepseekModel.trim()
       ? merged.deepseekModel.trim().slice(0, 80)

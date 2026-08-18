@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { extraOriginFromBaseUrl } from '../../lib/safe-url';
-import { sendMessage } from '../../lib/messages';
-import { DEFAULT_SETTINGS } from '../../lib/settings';
+import { applyLoadedSettings, DEFAULT_SETTINGS, loadSettings, saveSettings } from '../../lib/settings';
 import type { SearchProviderId, SearchUsage, Settings } from '../../lib/types';
 import { SEARCH_CALLS_PER_CHECK } from '../../lib/verify/search';
-import { usageSummary } from '../../lib/verify/usage';
+import { getSearchUsage, invalidateUsageCache, usageSummary } from '../../lib/verify/usage';
 
 export default function App() {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
@@ -12,26 +11,23 @@ export default function App() {
   const [usage, setUsage] = useState<SearchUsage | null>(null);
   const [usageBusy, setUsageBusy] = useState(false);
 
-  async function refreshUsage(force = false) {
+  async function refreshUsage(force = false, current = settings) {
     setUsageBusy(true);
     try {
-      const res = await sendMessage<{ ok: true; usage: SearchUsage | null } | { ok: false; error: string }>({
-        type: 'GET_USAGE',
-        force,
-      });
-      if (res.ok) setUsage(res.usage);
+      const next = await getSearchUsage(current, force);
+      setUsage(next);
+    } catch {
+      setUsage(null);
     } finally {
       setUsageBusy(false);
     }
   }
 
   useEffect(() => {
-    void sendMessage<{ ok: true; settings: Settings } | { ok: false; error: string }>({ type: 'GET_SETTINGS' }).then(
-      (res) => {
-        if (res.ok) setSettings(res.settings);
-      },
-    );
-    void refreshUsage();
+    void loadSettings().then((next) => {
+      setSettings(next);
+      void refreshUsage(false, next);
+    });
   }, []);
 
   function patch<K extends keyof Settings>(key: K, value: Settings[K]) {
@@ -46,19 +42,28 @@ export default function App() {
       <form
         onSubmit={async (event) => {
           event.preventDefault();
-          const extra = extraOriginFromBaseUrl(settings.deepseekBaseUrl);
-          if (extra) {
-            const granted = await browser.permissions.request({ origins: [extra] }).catch(() => false);
-            if (!granted) {
-              setSaved('已记下设置，但自定义接口权限被拒绝，调用会失败');
+          try {
+            const extra = extraOriginFromBaseUrl(settings.deepseekBaseUrl);
+            if (extra) {
+              const granted = await browser.permissions.request({ origins: [extra] }).catch(() => false);
+              if (!granted) {
+                setSaved('自定义接口权限被拒绝，Key 仍会保存，但调用可能失败');
+              }
             }
+            const next = applyLoadedSettings(settings);
+            await saveSettings(next);
+            await invalidateUsageCache();
+            const confirmed = await loadSettings();
+            setSettings(confirmed);
+            setSaved(
+              confirmed.deepseekApiKey || confirmed.searchApiKey
+                ? '已保存'
+                : '已保存（当前 Key 为空）',
+            );
+            void refreshUsage(true, confirmed);
+          } catch (error) {
+            setSaved(error instanceof Error ? error.message : '保存失败');
           }
-          const res = await sendMessage<{ ok: true } | { ok: false; error: string }>({
-            type: 'SAVE_SETTINGS',
-            settings,
-          });
-          setSaved(res.ok ? '已保存' : res.error);
-          void refreshUsage(true);
         }}
       >
         <div className="field">

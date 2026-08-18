@@ -24,6 +24,17 @@ describe('applyLoadedSettings', () => {
     );
   });
 
+  it('preserves API keys through load/save sanitization', () => {
+    const next = applyLoadedSettings({
+      deepseekApiKey: ' demo-llm-key ',
+      searchApiKey: ' bocha-test-key ',
+      autoCheck: true,
+    });
+    expect(next.deepseekApiKey).toBe('demo-llm-key');
+    expect(next.searchApiKey).toBe('bocha-test-key');
+    expect(next.autoCheck).toBe(false);
+  });
+
   it('ignores unknown search providers', () => {
     expect(applyLoadedSettings({ searchProvider: 'evil' as never }).searchProvider).toBe('bocha');
   });
